@@ -7,7 +7,6 @@ A comprehensive demonstration of OpenTelemetry distributed tracing and observabi
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
-- [Cost Considerations](#cost-considerations)
 - [Quick Start](#quick-start)
 - [Detailed Setup](#detailed-setup)
 - [Application Services](#application-services)
