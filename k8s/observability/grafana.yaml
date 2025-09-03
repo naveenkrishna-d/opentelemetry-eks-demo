@@ -1,0 +1,366 @@
+# Grafana Configuration for OpenTelemetry Demo
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: default
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      url: http://prometheus:9090
+      access: proxy
+      isDefault: true
+    - name: Jaeger
+      type: jaeger
+      url: http://jaeger-collector:16686
+      access: proxy
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: default
+data:
+  grafana.ini: |
+    [analytics]
+    check_for_updates = true
+    [grafana_net]
+    url = https://grafana.net
+    [log]
+    mode = console
+    [paths]
+    data = /var/lib/grafana/data
+    logs = /var/log/grafana
+    plugins = /var/lib/grafana/plugins
+    provisioning = /etc/grafana/provisioning
+    [security]
+    admin_user = admin
+    admin_password = admin123
+    [server]
+    http_port = 3000
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-providers
+  namespace: default
+data:
+  dashboardproviders.yaml: |
+    apiVersion: 1
+    providers:
+    - name: 'default'
+      orgId: 1
+      folder: ''
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: default
+data:
+  opentelemetry-overview.json: |
+    {
+      "dashboard": {
+        "id": null,
+        "title": "OpenTelemetry Overview",
+        "tags": ["opentelemetry"],
+        "style": "dark",
+        "timezone": "browser",
+        "panels": [
+          {
+            "id": 1,
+            "title": "Request Rate",
+            "type": "stat",
+            "targets": [
+              {
+                "expr": "sum(rate(otel_frontend_requests_total[5m]))",
+                "legendFormat": "Requests/sec"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "vis": false
+                  },
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 0,
+              "y": 0
+            },
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom"
+              },
+              "tooltip": {
+                "mode": "single"
+              }
+            }
+          },
+          {
+            "id": 2,
+            "title": "Response Time",
+            "type": "timeseries",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.95, sum(rate(otel_frontend_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "95th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(otel_frontend_request_duration_seconds_bucket[5m])) by (le))",
+                "legendFormat": "50th percentile"
+              }
+            ],
+            "fieldConfig": {
+              "defaults": {
+                "color": {
+                  "mode": "palette-classic"
+                },
+                "custom": {
+                  "axisLabel": "",
+                  "axisPlacement": "auto",
+                  "barAlignment": 0,
+                  "drawStyle": "line",
+                  "fillOpacity": 0,
+                  "gradientMode": "none",
+                  "hideFrom": {
+                    "legend": false,
+                    "tooltip": false,
+                    "vis": false
+                  },
+                  "lineInterpolation": "linear",
+                  "lineWidth": 1,
+                  "pointSize": 5,
+                  "scaleDistribution": {
+                    "type": "linear"
+                  },
+                  "showPoints": "auto",
+                  "spanNulls": false,
+                  "stacking": {
+                    "group": "A",
+                    "mode": "none"
+                  },
+                  "thresholdsStyle": {
+                    "mode": "off"
+                  }
+                },
+                "mappings": [],
+                "thresholds": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                },
+                "unit": "s"
+              },
+              "overrides": []
+            },
+            "gridPos": {
+              "h": 8,
+              "w": 12,
+              "x": 12,
+              "y": 0
+            },
+            "options": {
+              "legend": {
+                "calcs": [],
+                "displayMode": "list",
+                "placement": "bottom"
+              },
+              "tooltip": {
+                "mode": "single"
+              }
+            }
+          }
+        ],
+        "time": {
+          "from": "now-1h",
+          "to": "now"
+        },
+        "timepicker": {},
+        "templating": {
+          "list": []
+        },
+        "annotations": {
+          "list": []
+        },
+        "refresh": "5s",
+        "schemaVersion": 27,
+        "version": 0,
+        "links": []
+      }
+    }
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: default
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      securityContext:
+        fsGroup: 472
+        supplementalGroups:
+          - 0
+      containers:
+      - name: grafana
+        image: grafana/grafana:10.1.0
+        ports:
+        - containerPort: 3000
+          name: http-grafana
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /robots.txt
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 2
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 3000
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 500m
+            memory: 512Mi
+          requests:
+            cpu: 200m
+            memory: 256Mi
+        volumeMounts:
+        - mountPath: /var/lib/grafana
+          name: grafana-pv
+        - mountPath: /etc/grafana/grafana.ini
+          name: grafana-config
+          subPath: grafana.ini
+        - mountPath: /etc/grafana/provisioning/datasources
+          name: grafana-datasources
+          readOnly: false
+        - mountPath: /etc/grafana/provisioning/dashboards
+          name: grafana-dashboard-providers
+          readOnly: false
+        - mountPath: /var/lib/grafana/dashboards
+          name: grafana-dashboards
+          readOnly: false
+      volumes:
+      - name: grafana-pv
+        emptyDir: {}
+      - name: grafana-config
+        configMap:
+          defaultMode: 420
+          name: grafana-config
+      - name: grafana-datasources
+        configMap:
+          defaultMode: 420
+          name: grafana-datasources
+      - name: grafana-dashboard-providers
+        configMap:
+          defaultMode: 420
+          name: grafana-dashboard-providers
+      - name: grafana-dashboards
+        configMap:
+          defaultMode: 420
+          name: grafana-dashboards
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: default
+  labels:
+    app: grafana
+spec:
+  selector:
+    app: grafana
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+  type: LoadBalancer  # For external access to Grafana UI
+

@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: default
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: frontend:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "http://productcatalog:7000"
+        - name: CART_SERVICE_ADDR
+          value: "http://cart:7001"
+        - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+          value: "http://otel-collector:4317"
+        - name: OTEL_EXPORTER_OTLP_METRICS_ENDPOINT
+          value: "http://otel-collector:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "frontend"
+        - name: OTEL_SERVICE_VERSION
+          value: "1.0.0"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=frontend,service.version=1.0.0"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: default
+  labels:
+    app: frontend
+spec:
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+  type: LoadBalancer  # This will create an AWS Load Balancer for external access
+

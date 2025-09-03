@@ -1,0 +1,132 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OpenTelemetry Infrastructure Monitoring",
+    "tags": ["opentelemetry", "infrastructure", "kubernetes"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Cluster CPU Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{image!=\"\"}[1m]))",
+            "legendFormat": "Total CPU Usage"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Cluster Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(container_memory_working_set_bytes{image!=\"\"})",
+            "legendFormat": "Total Memory Usage"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Node CPU Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(node_cpu_seconds_total{mode!=\"idle\"}[1m])) by (instance)",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Node Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "node_memory_MemTotal_bytes - node_memory_MemFree_bytes",
+            "legendFormat": "{{instance}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Pod Restarts",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(kube_pod_container_status_restarts_total) by (pod)",
+            "legendFormat": "{{pod}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "Network I/O by Pod",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(container_network_receive_bytes_total[1m])) by (pod)",
+            "legendFormat": "{{pod}} (Receive)"
+          },
+          {
+            "expr": "sum(rate(container_network_transmit_bytes_total[1m])) by (pod)",
+            "legendFormat": "{{pod}} (Transmit)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

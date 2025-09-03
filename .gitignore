@@ -1,0 +1,62 @@
+# Core secrets / credentials (never commit real values)
+.env
+*.pem
+*.key
+*.crt
+
+# Python
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Node / JS
+node_modules/
+**/node_modules/
+yarn.lock
+pnpm-lock.yaml
+
+# Go build artifacts (none expected, but safe)
+*.exe
+*.out
+*.test
+
+# Terraform local state & caches
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+override.tf
+override.tf.json
+*.override.tf
+*.override.tf.json
+.terraform.lock.hcl
+
+# Logs / runtime artifacts
+*.log
+logs/
+
+# Packaging / distribution outputs
+otel-demo-dist/
+*.tar.gz
+*.tgz
+*.zip
+*.bundle
+
+# Misc / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Generated screenshots or media
+screenshots/
+
+# Build / dist placeholders
+build/
+dist/
+coverage/
+
+# Docker leftovers
+**/.dockerignore.generated

@@ -1,0 +1,111 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OpenTelemetry Error Analysis",
+    "tags": ["opentelemetry", "errors", "troubleshooting"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Error Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{http_status_code=~\"5..\"}[1m])) / sum(rate(otel_http_server_duration_count[1m])) * 100",
+            "legendFormat": "Total Error Rate (%)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Errors by Service",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{http_status_code=~\"5..\"}[1m])) by (service.name)",
+            "legendFormat": "{{service.name}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Errors by HTTP Status Code",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{http_status_code=~\"5..\"}[1m])) by (http_status_code)",
+            "legendFormat": "{{http_status_code}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Top Error Endpoints",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "sum by (http_target, service_name) (rate(otel_http_server_duration_count{http_status_code=~\"5..\"}[5m]))",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Error Traces (Jaeger)",
+        "type": "trace",
+        "targets": [
+          {
+            "datasource": "Jaeger",
+            "query": "{\"tags\":{\"error\":true}}"
+          }
+        ],
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

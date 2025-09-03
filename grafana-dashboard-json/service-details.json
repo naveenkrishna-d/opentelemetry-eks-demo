@@ -1,0 +1,156 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OpenTelemetry Service Details",
+    "tags": ["opentelemetry", "service"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Service Selector",
+        "type": "text",
+        "gridPos": {
+          "h": 2,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "options": {
+          "content": "<p>Select a service from the dropdown below to view its details.</p>"
+        }
+      },
+      {
+        "id": 2,
+        "title": "Request Rate by Endpoint",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{service_name=\"$service\"}[1m])) by (http_target)",
+            "legendFormat": "{{http_target}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 2
+        }
+      },
+      {
+        "id": 3,
+        "title": "Request Latency (P95) by Endpoint",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(otel_http_server_duration_bucket{service_name=\"$service\"}[1m])) by (le, http_target))",
+            "legendFormat": "{{http_target}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 2
+        }
+      },
+      {
+        "id": 4,
+        "title": "Error Rate by Endpoint",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{service_name=\"$service\", http_status_code=~\"5..\"}[1m])) / sum(rate(otel_http_server_duration_count{service_name=\"$service\"}[1m])) * 100",
+            "legendFormat": "{{http_target}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 10
+        }
+      },
+      {
+        "id": 5,
+        "title": "Service CPU Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(process_cpu_seconds_total{service_name=\"$service\"}[1m]))",
+            "legendFormat": "CPU Usage"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 10
+        }
+      },
+      {
+        "id": 6,
+        "title": "Service Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(process_memory_usage_bytes{service_name=\"$service\"})",
+            "legendFormat": "Memory Usage"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 18
+        }
+      },
+      {
+        "id": 7,
+        "title": "Traces for Selected Service",
+        "type": "trace",
+        "targets": [
+          {
+            "datasource": "Jaeger",
+            "query": "{\"service\":\"$service\"}"
+          }
+        ],
+        "gridPos": {
+          "h": 10,
+          "w": 24,
+          "x": 0,
+          "y": 26
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": [
+        {
+          "name": "service",
+          "type": "query",
+          "query": "label_values(otel_http_server_duration_count, service_name)",
+          "datasource": "Prometheus",
+          "refresh": 1,
+          "current": {},
+          "includeAll": true,
+          "multi": false,
+          "allValue": null,
+          "sort": 0,
+          "options": []
+        }
+      ]
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

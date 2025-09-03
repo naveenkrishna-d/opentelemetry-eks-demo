@@ -1,0 +1,128 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "OpenTelemetry Application Overview",
+    "tags": ["opentelemetry", "application"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Total Request Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count[1m]))",
+            "legendFormat": "Total Requests/sec"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Request Latency (P95)",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(otel_http_server_duration_bucket[1m])) by (le))",
+            "legendFormat": "P95 Latency"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count{http_status_code=~\"5..\"}[1m])) / sum(rate(otel_http_server_duration_count[1m])) * 100",
+            "legendFormat": "Error Rate (%)"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 8
+        }
+      },
+      {
+        "id": 4,
+        "title": "Service Request Rate",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(otel_http_server_duration_count[1m])) by (service.name)",
+            "legendFormat": "{{service.name}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 8
+        }
+      },
+      {
+        "id": 5,
+        "title": "Active Connections",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(otel_http_server_active_requests)",
+            "legendFormat": "Active Connections"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        }
+      },
+      {
+        "id": 6,
+        "title": "CPU Usage by Service",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "sum(rate(process_cpu_seconds_total[1m])) by (service.name)",
+            "legendFormat": "{{service.name}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 16
+        }
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}
